@@ -6,21 +6,21 @@ function App() {
     fullName: '',
     cpf: '',
     email: '',
-    favoriteColor: '',
-    notes: '',
+    preferredColor: '',
+    observations: '',
   });
 
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const colors = [
-    'Red',
-    'Orange',
-    'Yellow',
-    'Green',
-    'Blue',
-    'Indigo',
-    'Violet',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'blue',
+    'indigo',
+    'violet',
   ];
 
   const handleInputChange = (e) => {
@@ -29,8 +29,8 @@ function App() {
   };
 
   const validateForm = () => {
-    const { fullName, cpf, email, favoriteColor } = formData;
-    if (!fullName || !cpf || !email || !favoriteColor) {
+    const { fullName, cpf, email, preferredColor } = formData;
+    if (!fullName || !cpf || !email || !preferredColor) {
       return 'Por favor, preencha todos os campos obrigatórios!';
     }
 
@@ -61,22 +61,37 @@ function App() {
     }
 
     try {
-      // Simula o envio para o backend
-      await mockApiCall(formData);
-      setSuccessMessage('Cadastro realizado com sucesso!');
-      setFormData({ fullName: '', cpf: '', email: '', favoriteColor: '', notes: '' });
+      // Chamada para a API backend real
+      const response = await submitClientData(formData);
+
+      if (response.status === 201) {
+        setSuccessMessage('Cadastro realizado com sucesso!');
+        setFormData({ fullName: '', cpf: '', email: '', preferredColor: '', observations: '' });
+      } else {
+        setErrorMessage('Erro inesperado ao enviar o cadastro. Tente novamente.');
+      }
     } catch (error) {
-      setErrorMessage('Ocorreu um erro ao enviar o cadastro. Tente novamente.');
+      // Tratar erros de backend e exibir mensagem de erro
+      setErrorMessage(error.message || 'Ocorreu um erro ao enviar o cadastro. Tente novamente.');
     }
   };
 
-  const mockApiCall = (data) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        console.log('Dados enviados:', data);
-        resolve();
-      }, 1000);
+  const submitClientData = async (data) => {
+    const response = await fetch('http://localhost:3000/clients/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
+
+    if (!response.ok) {
+      // Lança um erro se a resposta não for 200-299
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erro ao processar a solicitação.');
+    }
+
+    return response;
   };
 
   return (
@@ -120,8 +135,8 @@ function App() {
         <div className="form-group">
           <label>Cor Preferida *</label>
           <select
-            name="favoriteColor"
-            value={formData.favoriteColor}
+            name="preferredColor"
+            value={formData.preferredColor}
             onChange={handleInputChange}
             required
           >
@@ -137,8 +152,8 @@ function App() {
         <div className="form-group">
           <label>Observações</label>
           <textarea
-            name="notes"
-            value={formData.notes}
+            name="observations"
+            value={formData.observations}
             onChange={handleInputChange}
           ></textarea>
         </div>
