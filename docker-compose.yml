@@ -9,6 +9,35 @@ services:
       - "3001:80"  # Mapear a porta 80 do contêiner para a porta 3001 no host
     networks:
       - app-network  # Conectar o frontend à rede personalizada
+  
+  backend:
+    build:
+      context: ./api-app  # Caminho para o diretório raiz do projeto
+      dockerfile: Dockerfile  # Usar o Dockerfile do backend (se aplicável)
+    ports:
+      - "3000:3000"  # Mapear a porta 3000 do contêiner para a porta 3000 no host
+    depends_on:
+      - postgres  # Garantir que o backend inicie após o banco de dados
+    networks:
+      - app-network  # Conectar o backend à rede personalizada
+
+  postgres:
+    image: postgres:15  # Usar a imagem oficial do Postgres
+    container_name: nest_postgres
+    restart: always
+    ports:
+      - "5432:5432"  # Mapear a porta 5433 do host para a porta 5432 do contêiner
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nest_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network  # Conectar o banco à rede personalizada
+
+volumes:
+  postgres_data:
 
 networks:
   app-network:
