@@ -11,11 +11,11 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: 'nest_postgres',
       port: 5432,
-      username: 'nest_user',
-      password: 'nest_password',
-      database: 'nest_database',
+      username: 'postgres',
+      password: 'postgres',
+      database: 'nest_db',
       autoLoadEntities: true, // Carrega automaticamente as entidades
       synchronize: true,      // Apenas para desenvolvimento (sincroniza o schema do BD)
     }),ClientsModule],
