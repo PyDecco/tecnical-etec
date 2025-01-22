@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
+import logo from './assets/logo-eteg.png';
+import startupBackground from './assets/startup-pessoas.jpeg'
 
 function App() {
   const [formData, setFormData] = useState({
@@ -61,7 +63,6 @@ function App() {
     }
 
     try {
-      // Chamada para a API backend real
       const response = await submitClientData(formData);
 
       if (response.status === 201) {
@@ -71,7 +72,6 @@ function App() {
         setErrorMessage('Erro inesperado ao enviar o cadastro. Tente novamente.');
       }
     } catch (error) {
-      // Tratar erros de backend e exibir mensagem de erro
       setErrorMessage(error.message || 'Ocorreu um erro ao enviar o cadastro. Tente novamente.');
     }
   };
@@ -86,7 +86,6 @@ function App() {
     });
 
     if (!response.ok) {
-      // Lança um erro se a resposta não for 200-299
       const errorData = await response.json();
       throw new Error(errorData.message || 'Erro ao processar a solicitação.');
     }
@@ -96,73 +95,85 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Cadastro de Cliente</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Nome Completo *</label>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+      <div class="container">
+        <section class="form">
+          <img src={logo} alt="logo da empresa ETEG" className='logo' />
 
-        <div className="form-group">
-          <label>CPF *</label>
-          <input
-            type="text"
-            name="cpf"
-            value={formData.cpf}
-            onChange={handleInputChange}
-            maxLength="11"
-            required
-          />
-        </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Nome Completo <span class="required">*</span></label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                placeholder='Digite seu nome completo'
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label>E-mail *</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+            <div className="form-group">
+              <label>CPF <span class="required">*</span></label>
+              <input
+                type="text"
+                name="cpf"
+                value={formData.cpf}
+                onChange={handleInputChange}
+                maxLength="11"
+                placeholder='XXX.XXX.XXX-XX'
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label>Cor Preferida *</label>
-          <select
-            name="preferredColor"
-            value={formData.preferredColor}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">Selecione uma cor</option>
-            {colors.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="form-group">
+              <label>E-mail <span class="required">*</span></label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder='Digite o seu melhor e-mail'
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label>Observações</label>
-          <textarea
-            name="observations"
-            value={formData.observations}
-            onChange={handleInputChange}
-          ></textarea>
-        </div>
+            <div className="form-group">
+              <label>Cor Preferida <span class="required">*</span></label>
+              <select
+                name="preferredColor"
+                value={formData.preferredColor}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Selecione uma cor</option>
+                {colors.map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        {successMessage && <p className="success-message">{successMessage}</p>}
+            <div className="form-group">
+              <label>Observações</label>
+              <textarea
+                name="observations"
+                value={formData.observations}
+                onChange={handleInputChange}
+              ></textarea>
+            </div>
 
-        <button type="submit">Enviar</button>
-      </form>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+            {successMessage && <p className="success-message">{successMessage}</p>}
+
+            <button type="submit">Enviar</button>
+          </form>
+        </section>
+        <section class="background">
+          <img src={startupBackground} alt="Pessoas de uma startup" class="background-image" />
+          <div class="overlay"></div>
+        </section>
+      </div>
     </div>
   );
 }
