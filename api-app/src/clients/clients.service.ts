@@ -8,24 +8,35 @@ import { InjectRepository } from '@nestjs/typeorm';
 export class ClientsService {
   constructor(
     @InjectRepository(Client)
-    private readonly usersRepository: Repository<Client>,
+    private readonly clientsRepository: Repository<Client>,
   ) {}
 
-  async create(createUserDto: CreateClientDto): Promise<Client> {
-    const { cpf, email } = createUserDto;
-    
-    const cpfExists = await this.usersRepository.findOne({ where: { cpf } });
-    if (cpfExists) {
+  async create(createClientDto: CreateClientDto): Promise<Client> {
+    await this.validateUniqueFields(createClientDto);
+    const newClient = this.clientsRepository.create(createClientDto);
+    return await this.clientsRepository.save(newClient);
+  }
+
+  private async validateUniqueFields(createClientDto: CreateClientDto): Promise<void> {
+    const { cpf, email } = createClientDto;
+
+    if (await this.isCpfRegistered(cpf)) {
       throw new ConflictException('CPF já cadastrado.');
     }
 
-    const emailExists = await this.usersRepository.findOne({ where: { email } });
-    if (emailExists) {
+    if (await this.isEmailRegistered(email)) {
       throw new ConflictException('E-mail já cadastrado.');
     }
+  }
 
-    const newUser = this.usersRepository.create(createUserDto);
-    return await this.usersRepository.save(newUser);
+  private async isCpfRegistered(cpf: string): Promise<boolean> {
+    const cpfExists = await this.clientsRepository.findOne({ where: { cpf } });
+    return !!cpfExists;
+  }
+
+  private async isEmailRegistered(email: string): Promise<boolean> {
+    const emailExists = await this.clientsRepository.findOne({ where: { email } });
+    return !!emailExists;
   }
 }
 

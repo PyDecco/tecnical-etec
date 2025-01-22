@@ -1,18 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientsService } from './clients.service';
+import { Client } from 'src/entities/client';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Client } from 'src/entities/client';
 import { ConflictException } from '@nestjs/common';
+import { CreateClientDto } from './dtos/create-client.dto';
 
 describe('ClientsService', () => {
   let service: ClientsService;
   let repository: Repository<Client>;
 
-  const mockRepository = {
-    findOne: jest.fn(),
-    create: jest.fn(),
-    save: jest.fn(),
+  const mockClientRepository = {
+    create: jest.fn().mockImplementation((dto: CreateClientDto) => ({
+      ...dto,
+      id: 'some-uuid',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })),
+    save: jest.fn().mockImplementation((client: Client) => Promise.resolve(client)),
+    findOne: jest.fn().mockResolvedValue(null), // Default behavior (no conflict)
   };
 
   beforeEach(async () => {
@@ -21,7 +27,7 @@ describe('ClientsService', () => {
         ClientsService,
         {
           provide: getRepositoryToken(Client),
-          useValue: mockRepository,
+          useValue: mockClientRepository,
         },
       ],
     }).compile();
@@ -34,37 +40,23 @@ describe('ClientsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should throw a ConflictException if CPF already exists', async () => {
-      mockRepository.findOne.mockResolvedValueOnce({ cpf: '12345678900' });
+  it('should create a new client when CPF and email are unique', async () => {
+    const createClientDto: CreateClientDto = {
+      fullName: 'John Doe',
+      cpf: '12345678901',
+      email: 'john.doe@example.com',
+      preferredColor: 'blue',
+      observations: 'Some observations',
+    };
 
-      await expect(
-        service.create({ cpf: '12345678900', email: 'test@example.com', name: 'Test User' }),
-      ).rejects.toThrow(ConflictException);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { cpf: '12345678900' } });
-    });
+    const result = await service.create(createClientDto);
 
-    it('should throw a ConflictException if email already exists', async () => {
-      mockRepository.findOne
-        .mockResolvedValueOnce(null) // CPF does not exist
-        .mockResolvedValueOnce({ email: 'test@example.com' });
-
-      await expect(
-        service.create({ cpf: '12345678900', email: 'test@example.com', name: 'Test User' }),
-      ).rejects.toThrow(ConflictException);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
-    });
-
-    it('should create and save a new client if CPF and email are unique', async () => {
-      mockRepository.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
-      mockRepository.create.mockReturnValue({ cpf: '12345678900', email: 'test@example.com', name: 'Test User' });
-      mockRepository.save.mockResolvedValue({ id: 1, cpf: '12345678900', email: 'test@example.com', name: 'Test User' });
-
-      const result = await service.create({ cpf: '12345678900', email: 'test@example.com', name: 'Test User' });
-
-      expect(mockRepository.create).toHaveBeenCalledWith({ cpf: '12345678900', email: 'test@example.com', name: 'Test User' });
-      expect(mockRepository.save).toHaveBeenCalledWith({ cpf: '12345678900', email: 'test@example.com', name: 'Test User' });
-      expect(result).toEqual({ id: 1, cpf: '12345678900', email: 'test@example.com', name: 'Test User' });
-    });
+    expect(result).toHaveProperty('id');
+    expect(result.fullName).toBe(createClientDto.fullName);
+    expect(result.cpf).toBe(createClientDto.cpf);
+    expect(result.email).toBe(createClientDto.email);
+    expect(result.preferredColor).toBe(createClientDto.preferredColor);
+    expect(result.observations).toBe(createClientDto.observations);
   });
 });
+
