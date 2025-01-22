@@ -1,9 +1,10 @@
 # Desafio Técnico - John Doe e seu Formulário de Cadastro
 
+![alt text](<Captura de tela de 2025-01-22 10-34-59.png>)
+
 ## Fase 1: Uso do Sistema
 
 ### 1. Pré-requisitos
-
 - **Node.js**: Instale a versão LTS do Node.js.
   - [Node.js Download](https://nodejs.org/en/download/)
   
