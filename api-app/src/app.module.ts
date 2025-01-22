@@ -16,8 +16,8 @@ import { ConfigModule } from '@nestjs/config';
       username: 'postgres',
       password: 'postgres',
       database: 'nest_db',
-      autoLoadEntities: true, // Carrega automaticamente as entidades
-      synchronize: true,      // Apenas para desenvolvimento (sincroniza o schema do BD)
+      autoLoadEntities: true, 
+      synchronize: true,      
     }),ClientsModule],
   controllers: [AppController],
   providers: [AppService],

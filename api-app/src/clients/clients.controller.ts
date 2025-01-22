@@ -13,7 +13,7 @@ export class ClientsController {
       return await this.usersService.create(createUserDto);
     } catch (error) {
       if (error instanceof ConflictException) {
-        throw error; // Repassa a exceção para que o NestJS a trate adequadamente
+        throw error; 
       }
       throw new Error('Erro inesperado ao criar o usuário.');
     }

@@ -13,14 +13,12 @@ export class ClientsService {
 
   async create(createUserDto: CreateClientDto): Promise<Client> {
     const { cpf, email } = createUserDto;
-
-    // Verificar se o CPF já está cadastrado
+    
     const cpfExists = await this.usersRepository.findOne({ where: { cpf } });
     if (cpfExists) {
       throw new ConflictException('CPF já cadastrado.');
     }
 
-    // Verificar se o e-mail já está cadastrado
     const emailExists = await this.usersRepository.findOne({ where: { email } });
     if (emailExists) {
       throw new ConflictException('E-mail já cadastrado.');
